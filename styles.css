@@ -1,0 +1,31 @@
+body {
+	background: #121b1f;
+}
+
+.poster {
+	user-drag: none;
+	-moz-user-select: none;
+	-webkit-user-drag: none;
+}
+
+.btn {
+  background: #1c2a30;
+  -webkit-border-radius: 7;
+  -moz-border-radius: 7;
+  border-radius: 7px;
+  font-family: 'Raleway', sans-serif;
+  color: #ffffff;
+  font-size: 20px;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+  transition-duration: 300ms;
+  transition-property: background;
+  transition-timing-function: ease;
+  -webkit-transition-duration: 300ms;
+  -webkit-transition-property: background;
+  -webkit-transition-timing-function: ease;
+}
+
+.btn:hover {
+	background: #2e3e44;
+}
