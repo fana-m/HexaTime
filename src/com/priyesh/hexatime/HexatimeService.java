@@ -17,9 +17,7 @@
 package com.priyesh.hexatime;
 
 import java.util.Calendar;
-
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -27,25 +25,21 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.service.wallpaper.WallpaperService;
 import android.view.Display;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 public class HexatimeService extends WallpaperService{
 
 	private static final String TAG = "Wallpaper";
 	public static final String SHARED_PREFS_NAME="hexatime_settings";
 	public int oneSecond = 1000;
-	public int day, hour, min, sec, twelveHour;
+	public int day, hour, twelveHour, min, sec;
 	public Calendar cal;
 	private SharedPreferences mPrefs = null;
 	
-	private int fontStyleValue = 1; // 0 is regular, 1 is light
+	private int fontStyleValue = 1;
 	private Typeface fontStyle;
 	
 	private int clockSizeValue = 1; // 0 = small, 1 = medium, 2 = large
@@ -54,12 +48,18 @@ public class HexatimeService extends WallpaperService{
 	private int clockAlignmentValue = 1; // 0 = top, 1 = center, 2 = bottom
 	private float clockAlignment;
 	
-	private int clockStyleValue = 1;
-	private String clockStyle;
+	private String clockAddons;
+	private int clockAddonsValue = 1;
+	
+	private String separatorStyle;
+	private int separatorStyleValue = 1;
 	
 	private boolean clockHideValue = false;
 	
-	private int clockCycleValue = 0; // 0 = day, 1 = year
+	private int timeFormatValue = 1;
+	
+	private int colorRangeValue = 0; // 0 = day, 1 = year
+
 
 	@Override
 	public Engine onCreateEngine() {
@@ -82,7 +82,6 @@ public class HexatimeService extends WallpaperService{
 			}};
 
 			HexatimeEngine(WallpaperService ws) {
-
 				mPrefs = HexatimeService.this.getSharedPreferences(SHARED_PREFS_NAME, 0);
 				mPrefs.registerOnSharedPreferenceChangeListener(this);
 				onSharedPreferenceChanged(mPrefs, null);
@@ -92,9 +91,9 @@ public class HexatimeService extends WallpaperService{
 				cal = Calendar.getInstance();
 				day = cal.get(Calendar.DAY_OF_YEAR) - 1;
 				hour = cal.get(Calendar.HOUR_OF_DAY);
+				twelveHour = cal.get(Calendar.HOUR);
 				min = cal.get(Calendar.MINUTE);
 				sec = cal.get(Calendar.SECOND);
-				twelveHour = cal.get(Calendar.HOUR);
 
 				SurfaceHolder holder = getSurfaceHolder();
 				c = null;
@@ -106,41 +105,42 @@ public class HexatimeService extends WallpaperService{
 						
 						hexClock.setTextSize(clockSize);
 						hexClock.setTypeface(fontStyle);
+						hexClock.setColor(Color.WHITE);
 						hexClock.setAntiAlias(true);
 						
-						String hexValue, hexTime;
-						int _r=0, _g=0, _b=0;
-						
-						if(clockCycleValue == 1) {
-							Double tempTime = ( ( day * 86400 ) + ( hour * 3600 ) + ( min * 60 ) + sec ) * 0.53200202942669;
-							// 30672000 + 81420 + 3540 + 59 * 0.53200202942669 ~ 16777215,467998 ~ #FFFFFF at end of year
-							hexValue = String.format("%6s", Integer.toHexString(tempTime.intValue())).replace(" ", "0");
-							_r = Integer.parseInt(hexValue.substring(0, 2), 16);
-							_g = Integer.parseInt(hexValue.substring(2, 4), 16);
-							_b = Integer.parseInt(hexValue.substring(4, 6), 16);
-						} else {
-							hexValue = String.format("%02d%02d%02d", hour, min, sec);
-							_r = hour;
-							_g = min;
-							_b = sec;
-						}
+						String hexTime;
+						if (timeFormatValue == 0){
+							hexTime = String.format(clockAddons, twelveHour, min, sec); 
 
-						hexTime = String.format(clockStyle, hexValue);
+						}
+						else {
+							hexTime = String.format(clockAddons, hour, min, sec);
+						}
+						String hexValue;
+						int red=0, green=0, blue=0;
 						float d = hexClock.measureText(hexTime, 0, hexTime.length());
 						int offset = (int) d / 2;
 						int w = c.getWidth();
 						int h = c.getHeight();
 
-						bg.setColor(Color.argb(255, _r, _g, _b));
+						if(colorRangeValue == 1) {
+							Double tempTime = ( ( day * 86400 ) + ( hour * 3600 ) + ( min * 60 ) + sec ) * 0.53200202942669;
+							hexValue = String.format("%6s", Integer.toHexString(tempTime.intValue())).replace(" ", "0");
+							red = Integer.parseInt(hexValue.substring(0, 2), 16);
+							green = Integer.parseInt(hexValue.substring(2, 4), 16);
+							blue = Integer.parseInt(hexValue.substring(4, 6), 16);
+						} else {
+							hexValue = String.format("%02d%02d%02d", hour, min, sec);
+							red = hour;
+							green = min;
+							blue = sec;
+						}
+						bg.setColor(Color.argb(255, red, green, blue));
 						c.drawRect(0, 0, w, h, bg);
-
+						
 						if(!clockHideValue){
-							hexClock.setColor(Color.WHITE);
+							c.drawText(hexTime, w/2- offset, clockAlignment, hexClock);
 						}
-						else {
-							hexClock.setColor(Color.TRANSPARENT);
-						}
-						c.drawText(hexTime, w/2- offset, clockAlignment, hexClock);
 
 					}
 				} finally {
@@ -194,34 +194,55 @@ public class HexatimeService extends WallpaperService{
 					else if(key.equals("CLOCK_ALIGNMENT")){
 						changeClockAlignment(prefs.getString("CLOCK_ALIGNMENT", "1"));
 					}
-					else if(key.equals("CLOCK_STYLE")){
-						changeClockStyle(prefs.getString("CLOCK_STYLE", "1"));
-					}
 					else if(key.equals("CLOCK_HIDE")){
 						changeClockHide(prefs.getBoolean("CLOCK_HIDE", false));
 					}
-					else if(key.equals("CLOCK_CYCLE")){
-						changeClockCycle(prefs.getString("CLOCK_CYCLE", "0"));
+					else if(key.equals("TIME_FORMAT")){
+						changeTimeFormat(prefs.getString("TIME_FORMAT", "1"));
+					}
+					else if(key.equals("COLOR_RANGE")){
+						changeColorRange(prefs.getString("COLOR_RANGE", "0"));
+					}
+					else if(key.equals("CLOCK_ADDONS")){
+						changeClockAddons(prefs.getString("CLOCK_ADDONS", "1"));
+					}
+					else if(key.equals("SEPARATOR_STYLE")){
+						changeSeparatorStyle(prefs.getString("SEPARATOR_STYLE", "1"));
 					}
 				}
 				else {	                        
 					changeFontStyle(prefs.getString("FONT_STYLE", "1"));
 					changeClockSize(prefs.getString("CLOCK_SIZE", "1"));
 					changeClockAlignment(prefs.getString("CLOCK_ALIGNMENT", "1"));
-					changeClockStyle(prefs.getString("CLOCK_STYLE", "1"));
 					changeClockHide(prefs.getBoolean("CLOCK_HIDE", false));
-					changeClockCycle(prefs.getString("CLOCK_CYCLE", "0"));
+					changeTimeFormat(prefs.getString("TIME_FORMAT", "1"));
+					changeColorRange(prefs.getString("COLOR_RANGE", "0"));
+					changeClockAddons(prefs.getString("CLOCK_ADDONS", "1"));
+					changeSeparatorStyle(prefs.getString("SEPARATOR_STYLE", "1"));
+
 				}
 				return;
 			}
 
 			private void changeFontStyle(String value){
 				fontStyleValue = Integer.parseInt(value);
-				if(fontStyleValue == 0){ // regular
+				if(fontStyleValue == 0){ 
 					fontStyle = Typeface.createFromAsset(getAssets(), "Lato.ttf");
 				}
-				else if (fontStyleValue == 1){ // light
+				else if (fontStyleValue == 1){
 					fontStyle = Typeface.createFromAsset(getAssets(), "LatoLight.ttf");                    
+				}
+				else if (fontStyleValue == 2){
+					fontStyle = Typeface.createFromAsset(getAssets(), "Roboto.ttf");                    
+				}
+				else if (fontStyleValue == 3){
+					fontStyle = Typeface.createFromAsset(getAssets(), "RobotoLight.ttf");                    
+				}
+				else if (fontStyleValue == 4){
+					fontStyle = Typeface.createFromAsset(getAssets(), "RobotoSlab.ttf");                    
+				}
+				else if (fontStyleValue == 5){
+					fontStyle = Typeface.createFromAsset(getAssets(), "RobotoSlabLight.ttf");                    
 				}
 				return;
 			}
@@ -260,13 +281,44 @@ public class HexatimeService extends WallpaperService{
 				return;
 			}
 			
-			private void changeClockStyle(String value){
-				clockStyleValue = Integer.parseInt(value);
-				if(clockStyleValue == 0){ // Hide #
-					clockStyle = "%s";
+			private void changeClockAddons(String value){
+				clockAddonsValue = Integer.parseInt(value);
+				if(clockAddonsValue == 0){ // hide #
+					clockAddons = "%02d%02d%02d";
 				}
-				else if (clockStyleValue == 1){ // Show #
-					clockStyle = "#%s";              
+				else if (clockAddonsValue == 1){ // show #
+					clockAddons = "#%02d%02d%02d";
+				}
+				else if (clockAddonsValue == 2){ // show separator
+					clockAddons = "%02d"+separatorStyle+"%02d"+separatorStyle+"%02d";
+				}
+				else if (clockAddonsValue == 3){ // # and separator
+					clockAddons = "#%02d"+separatorStyle+"%02d"+separatorStyle+"%02d";
+				}
+				return;
+			}
+			
+			private void changeSeparatorStyle(String value){
+				separatorStyleValue = Integer.parseInt(value);
+				if(separatorStyleValue == 0){ 
+					separatorStyle = ":";
+					changeClockAddons(mPrefs.getString("CLOCK_ADDONS", "1"));
+				}
+				else if (separatorStyleValue == 1){
+					separatorStyle = " ";
+					changeClockAddons(mPrefs.getString("CLOCK_ADDONS", "1"));
+				}
+				else if (separatorStyleValue == 2){
+					separatorStyle = ".";
+					changeClockAddons(mPrefs.getString("CLOCK_ADDONS", "1"));
+				}
+				else if (separatorStyleValue == 3){
+					separatorStyle = "|";
+					changeClockAddons(mPrefs.getString("CLOCK_ADDONS", "1"));
+				}
+				else if (separatorStyleValue == 4){
+					separatorStyle = "/";
+					changeClockAddons(mPrefs.getString("CLOCK_ADDONS", "1"));
 				}
 				return;
 			}
@@ -275,10 +327,14 @@ public class HexatimeService extends WallpaperService{
 				clockHideValue = value;
 			}
 			
-			private void changeClockCycle(String value){
-				clockCycleValue = Integer.parseInt(value);
+			private void changeTimeFormat(String value){
+				timeFormatValue = Integer.parseInt(value);
 				return;
-				
+			}
+			
+			private void changeColorRange(String value){
+				colorRangeValue = Integer.parseInt(value);
+				return;		
 			}
 	}
 }

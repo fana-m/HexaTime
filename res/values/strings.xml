@@ -4,42 +4,66 @@
     <string name="app_name">HexaTime</string>
     <string name="description">HexaTime displays time along with the corresponding hexadecimal color.</string>
     
-    <string name="appearance">Appearance</string>
+    <string name="clock_appearance">Clock Appearance</string>
     <string name="clock_typeface_summary">Change clock typeface.</string>
     <string name="clock_typeface_title">Font style</string>
     <string name="clock_dimens_summary">Adjust dimensions of clock.</string>
     <string name="clock_dimens_title">Clock size</string>
     <string name="clock_align_summary">Choose where the clock is positioned.</string>
     <string name="clock_align_title">Clock alignment</string>
-    <string name="clock_style_summary">Show or hide the number sign (#)</string>
-    <string name="clock_style_title">Clock style</string>
-    <string name="clock_hide_summary">Hide the clock display, just show the colored wallpaper</string>
+    <string name="clock_hide_summary">Only display the colored wallpaper.</string>
     <string name="clock_hide_title">Hide clock</string>
-    <string name="clock_cycle_summary">Used mode of time.</string>
-    <string name="clock_cycle_title">Clock mode</string>
+    <string name="time_format_summary">Switch between 24 and 12 hour.</string>
+    <string name="time_format_title">Time format</string>    
+    <string name="clock_addon_summary">Miscellaneous format changes for clock.</string>    
+    <string name="clock_addon_title">Clock addons</string>
+    <string name="separator_style_summary">Choose the character used as the separator.</string>  
+    <string name="separator_style_title">Separator style</string>
+    <string name="color_range_summary">Incorporate date to stretch color spectrum.</string>
+    <string name="color_range_title">Color range</string>
+    
+    <string name="background_appearance">Background Appearance</string>
     
     <string name="about">About</string>
     <string name="about_developer_summary">This app is written by Priyesh Patel.</string>
     <string name="about_developer_title">Developer</string>
     <string name="about_contact_summary">Send me an email.</string>
     <string name="about_contact_title">Contact</string>
+    <string name="about_xda_summary">Visit the XDA thread for this app.</string>
+    <string name="about_xda_title">XDA Thread</string>
     <string name="about_source_summary">View the apps code via GitHub.</string>
     <string name="about_source_title">Source</string>
     <string name="about_donate_summary">Buy me a cookie.</string>
     <string name="about_donate_title">Donate</string>
     
-    <string name="regular">Regular</string>
-    <string name="light">Light</string>
+    <string name="lato_regular">Lato Regular</string>
+    <string name="lato_light">Lato Light</string>
+    <string name="roboto_regular">Roboto Regular</string>
+    <string name="roboto_light">Roboto Light</string>
+    <string name="robotoslab_regular">Roboto Slab Regular</string>
+    <string name="robotoslab_light">Roboto Slab Light</string>
+        
     <string name="large">Large</string>
     <string name="medium">Medium</string>
     <string name="small">Small</string>
     <string name="top">Top</string>
     <string name="center">Center</string>
     <string name="bottom">Bottom</string>
-    <string name="hide">Hide</string>
-    <string name="show">Show</string>
-    <string name="cycleday">Use realtime.</string>
-    <string name="cycleyear">Cycle by year.</string>
+    <string name="twelve_hour">12 hour</string>
+    <string name="twenty_four_hour">24 hour</string>
+    <string name="small_color_range">Small color range</string>
+    <string name="large_color_range">Large color range</string>
+    
+    <string name="hide_number_sign">Hide all</string>
+    <string name="show_number_sign">Show number sign</string>
+    <string name="show_separator">Show separators</string>
+    <string name="number_sign_separator">Number sign &amp; separators</string>
+    
+    <string name="separator_colon">"Colon (12:34:56)"</string>
+    <string name="separator_space">"Space (12 34 56)"</string>
+    <string name="separator_dot">"Dot     (12.34.56)"</string>
+    <string name="separator_pipe">"Pipe   (12|34|56)"</string>    
+    <string name="separator_slash">"Slash (12/34/56)"</string>
     
     <string name="thanks">Thanks :)</string>
 </resources>
